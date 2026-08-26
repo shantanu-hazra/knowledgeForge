@@ -1,408 +1,468 @@
 # KnowledgeForge
 
-**KnowledgeForge** is an AI-powered knowledge processing system that evolves from a deterministic document-processing pipeline into an **agentic and autonomous knowledge system**.
+KnowledgeForge is an **autonomous AI-powered knowledge system** designed to research, reason over information, use external capabilities, and produce reliable outcomes from high-level user objectives.
 
-The project is designed to explore how AI systems evolve when responsibility gradually moves from fixed application logic toward LLM-driven reasoning, tool use, planning, and autonomous execution.
+Instead of treating an LLM as a simple question-answering component, KnowledgeForge uses an **agentic workflow** where the system can decide what needs to be done, select the appropriate tools, execute actions, evaluate the results, and continue working when the objective has not yet been satisfied.
 
 ---
 
-## Project Evolution
+## How KnowledgeForge Works
 
-KnowledgeForge is developed incrementally through multiple phases.
+At a high level, KnowledgeForge follows a continuous reasoning and execution loop:
 
 ```text
-Phase 1
-Deterministic Knowledge Pipeline
-        ↓
-Phase 2
-Agentic Knowledge Workflow
-        ↓
-Phase 3
-Autonomous Knowledge System
+                 User Objective
+                       │
+                       ▼
+                ┌─────────────┐
+                │   Understand │
+                │   Objective  │
+                └──────┬──────┘
+                       │
+                       ▼
+                 ┌────────────┐
+                 │    Plan    │
+                 └─────┬──────┘
+                       │
+                       ▼
+              ┌──────────────────┐
+              │ Select Next Action│
+              └─────────┬────────┘
+                        │
+                        ▼
+                 ┌────────────┐
+                 │ Use Tools  │
+                 └─────┬──────┘
+                       │
+                       ▼
+                  ┌─────────┐
+                  │ Observe │
+                  │ Results │
+                  └────┬────┘
+                       │
+                       ▼
+                 ┌────────────┐
+                 │  Evaluate  │
+                 └─────┬──────┘
+                       │
+              ┌────────┴────────┐
+              │                 │
+           Complete          Incomplete
+              │                 │
+              ▼                 ▼
+           Respond          Re-plan
+                                │
+                                └──────► Continue
 ```
 
-Each phase introduces a new level of intelligence and autonomy without discarding the foundations built in previous phases.
+The system does not assume that one model call is sufficient to solve a complex objective.
+
+It can repeatedly reason about the current state, perform an action, inspect the result, and determine what should happen next.
 
 ---
 
-# Phase 1 — Knowledge Processing Pipeline
+## Core Components
 
-The first phase establishes the core knowledge infrastructure.
+### Agent
 
-KnowledgeForge can ingest knowledge sources, process them, and make the resulting information available for retrieval.
+The agent is responsible for reasoning about the objective and deciding the next appropriate action.
 
-### Core capabilities
-
-* Document ingestion
-* Document processing
-* Text extraction and chunking
-* Embedding generation
-* Vector-based retrieval
-* Knowledge querying
-* Persistent storage
-* Basic API layer
-
-### Architecture
-
-```text
-Knowledge Source
-      ↓
-   Ingestion
-      ↓
-   Processing
-      ↓
-   Chunking
-      ↓
-  Embeddings
-      ↓
- Knowledge Store
-      ↓
-   Retrieval
-      ↓
-    Answer
-```
-
-The workflow is primarily **deterministic**. Each step has a predefined responsibility and execution order.
-
-At this stage, the system can retrieve knowledge effectively, but it does not independently decide what actions should be taken.
-
----
-
-# Phase 2 — Agentic Knowledge Workflow
-
-Phase 2 introduces **agentic behavior**.
-
-Instead of forcing every request through the same fixed sequence, KnowledgeForge introduces an agent capable of reasoning about the user's request and selecting appropriate tools and actions.
-
-The system can determine:
+It determines:
 
 * What information is required
-* Which knowledge sources should be queried
+* What actions need to be performed
 * Which tools are relevant
-* Whether additional retrieval is necessary
-* How retrieved information should be combined
-* When the task is sufficiently complete
+* Whether the current information is sufficient
+* Whether additional work is required
+* When the objective has been completed
 
-### Agentic Flow
-
-```text
-                   User Request
-                        ↓
-                  ┌───────────┐
-                  │   Agent   │
-                  └─────┬─────┘
-                        ↓
-               ┌─────────────────┐
-               │ Reason / Decide  │
-               └────────┬────────┘
-                        ↓
-             ┌──────────┼──────────┐
-             ↓          ↓          ↓
-          Search      Retrieve    Tools
-             ↓          ↓          ↓
-             └──────────┼──────────┘
-                        ↓
-                    Observe
-                        ↓
-                     Reason
-                        ↓
-                  Final Response
-```
-
-The agent operates in a loop of:
-
-```text
-Reason → Act → Observe → Reason → ...
-```
-
-until it determines that the task can be completed.
-
-### Key Concepts Introduced
-
-* Agentic reasoning
-* Tool calling
-* Dynamic tool selection
-* Iterative retrieval
-* State management
-* Agent execution loops
-* Conditional workflow execution
-* Separation between reasoning and deterministic operations
-
-The important architectural shift is that **the workflow no longer determines every action in advance**.
-
-The system can make decisions about *how* to accomplish a task.
+The agent provides the reasoning layer while deterministic components handle concrete operations.
 
 ---
 
-# Phase 3 — Autonomous Knowledge System
+### Knowledge Layer
 
-Phase 3 extends the agentic workflow into an **autonomous system**.
+KnowledgeForge can work with a collection of structured and unstructured knowledge sources.
 
-The system is no longer limited to responding to explicit user requests.
+The knowledge layer enables the system to:
 
-KnowledgeForge can identify work that needs to be performed, formulate an execution plan, use available capabilities, evaluate the results, and continue working until the objective is satisfied.
+* Store information
+* Retrieve relevant information
+* Search across available knowledge
+* Provide contextual information to the agent
+* Ground decisions in retrieved data
 
-### Autonomous Loop
+This allows the agent to reason using information beyond the model's internal knowledge.
+
+---
+
+### Tools
+
+Tools provide the agent with capabilities that it cannot perform through reasoning alone.
+
+A tool can represent an operation such as:
 
 ```text
-             Goal / Objective
-                    ↓
-              ┌───────────┐
-              │   Agent   │
-              └─────┬─────┘
-                    ↓
-                 Plan
-                    ↓
-             Select Actions
-                    ↓
-              Execute Tools
-                    ↓
-                Observe
-                    ↓
-               Evaluate
-                    ↓
-          ┌─────────┴─────────┐
-          │                   │
-       Incomplete          Complete
-          │                   │
-          ↓                   ↓
-      Re-plan             Finalize
-          │
-          └──────→ Execute
+Search
+Retrieve Knowledge
+Read Data
+Analyze Information
+Call an API
+Perform an Action
 ```
 
-The system therefore moves from:
+The agent decides **when a tool is necessary and which tool should be used**.
 
-> **"Tell the system what to do."**
+The actual operation remains deterministic and is executed by the tool itself.
 
-to:
-
-> **"Give the system an objective and allow it to determine how to accomplish it."**
-
-### Autonomous Capabilities
-
-Phase 3 focuses on capabilities such as:
-
-* Goal-driven execution
-* Task decomposition
-* Dynamic planning
-* Tool selection
-* Iterative execution
-* Result evaluation
-* Re-planning
-* Failure recovery
-* Autonomous continuation
-* Knowledge-driven decision making
-* Completion detection
-
----
-
-# Agentic vs Autonomous
-
-These concepts are related but not identical.
-
-| Capability            | Agentic Workflow        | Autonomous System |
-| --------------------- | ----------------------- | ----------------- |
-| User provides task    | Yes                     | Not always        |
-| LLM reasoning         | Yes                     | Yes               |
-| Tool usage            | Yes                     | Yes               |
-| Dynamic decisions     | Yes                     | Yes               |
-| Planning              | Limited / task-specific | Core capability   |
-| Re-planning           | Possible                | Expected          |
-| Continuous execution  | Limited                 | Yes               |
-| Self-directed actions | Limited                 | Core capability   |
-| Goal evaluation       | Basic                   | Core capability   |
-| Failure recovery      | Workflow-dependent      | Autonomous        |
-| Human intervention    | Common                  | Reduced           |
-
-An **agentic workflow** gives an LLM control over parts of a workflow.
-
-An **autonomous system** gives an agent an objective and allows it to determine, execute, evaluate, and adapt its path toward that objective.
-
----
-
-# System Architecture
-
-By Phase 3, KnowledgeForge consists conceptually of several cooperating layers.
+This creates a separation between:
 
 ```text
-                         ┌──────────────────┐
-                         │      User /       │
-                         │      Trigger      │
-                         └────────┬─────────┘
-                                  ↓
-                         ┌──────────────────┐
-                         │  Agent / Planner │
-                         └────────┬─────────┘
-                                  ↓
-                    ┌──────────────────────────┐
-                    │     Decision / Planning  │
-                    └────────────┬─────────────┘
-                                 ↓
-              ┌──────────────────┼──────────────────┐
-              ↓                  ↓                  ↓
-        Knowledge Tools     External Tools     Processing Tools
-              ↓                  ↓                  ↓
-              └──────────────────┼──────────────────┘
-                                 ↓
-                            Observations
-                                 ↓
-                         Evaluation / State
-                                 ↓
-                         ┌───────┴────────┐
-                         │                │
-                     Continue          Complete
-                         │                │
-                         └──→ Re-plan     ↓
-                                      Response /
-                                      Result
+Agent → Decides what to do
+
+Tool → Performs the operation
 ```
 
 ---
 
-# Design Principles
+## Agentic Workflow
 
-KnowledgeForge follows several principles throughout its evolution.
+KnowledgeForge uses an agentic execution model rather than a completely fixed workflow.
 
-### 1. Deterministic where possible
+The agent maintains awareness of the current task state and uses that state to determine its next action.
 
-Not every problem requires an LLM.
-
-Operations that can be reliably expressed through normal application logic should remain deterministic.
-
-### 2. LLMs for reasoning
-
-LLMs are primarily used where interpretation, planning, decision-making, or adaptation is required.
-
-### 3. Tools for action
-
-The agent should reason about what needs to happen, while tools perform concrete operations.
-
-### 4. State over hidden context
-
-Important information required for execution should exist as explicit system state rather than relying entirely on conversation history.
-
-### 5. Iteration over one-shot execution
-
-Complex tasks may require multiple cycles of:
+For example:
 
 ```text
-Reason → Act → Observe → Evaluate
+Objective
+   ↓
+Need information
+   ↓
+Search knowledge
+   ↓
+Inspect result
+   ↓
+Information insufficient
+   ↓
+Search another source
+   ↓
+Compare results
+   ↓
+Enough information
+   ↓
+Perform required action
+   ↓
+Verify result
+   ↓
+Complete
 ```
 
-### 6. Controlled autonomy
+The exact sequence is determined dynamically based on the situation.
 
-Autonomy does not mean allowing an agent to do everything.
-
-Actions should have defined capabilities, boundaries, and failure-handling mechanisms.
+This allows the system to handle tasks where the correct sequence of operations cannot be known beforehand.
 
 ---
 
-# Technology Concepts Explored
+## Planning
 
-KnowledgeForge is primarily a learning and experimentation project around modern AI system architecture.
-
-The project explores:
-
-* RAG
-* Vector search
-* Embeddings
-* LLMs
-* Tool calling
-* Agents
-* Agentic workflows
-* State management
-* Workflow orchestration
-* Planning
-* Re-planning
-* Autonomous execution
-* Failure recovery
-* Evaluation
-* Human-in-the-loop patterns
-* Deterministic vs LLM-driven execution
-
----
-
-# Project Philosophy
-
-KnowledgeForge is intentionally built as an evolution rather than a single large AI application.
-
-The central question is:
-
-> **How much responsibility should belong to deterministic software, and how much should be delegated to an AI agent?**
-
-The project explores that boundary progressively:
+For complex objectives, KnowledgeForge can break a high-level goal into smaller tasks.
 
 ```text
-Fixed Logic
-    ↓
-LLM-Assisted Logic
-    ↓
-Agentic Workflow
-    ↓
-Planning + Tool Use
-    ↓
-Autonomous Execution
+High-Level Objective
+        ↓
+      Plan
+        ↓
+ ┌──────┼──────┐
+ ↓      ↓      ↓
+Task A Task B Task C
+        ↓
+   Execute Tasks
+        ↓
+   Evaluate Results
+        ↓
+    Update Plan
 ```
 
-The objective is not simply to add an LLM to an application.
+Planning allows the system to move beyond simple request-response interactions and perform multi-step work.
 
-It is to understand how the **architecture changes when the system itself becomes capable of deciding what to do next**.
+The plan is not necessarily static.
 
----
-
-# Current Status
-
-| Phase   | Status    | System                           |
-| ------- | --------- | -------------------------------- |
-| Phase 1 | Completed | Deterministic knowledge pipeline |
-| Phase 2 | Completed | Agentic knowledge workflow       |
-| Phase 3 | Completed | Autonomous knowledge system      |
-
-**Current state:** KnowledgeForge operates as an autonomous, goal-oriented knowledge system capable of reasoning, using tools, evaluating outcomes, and adapting its execution path.
+If execution produces unexpected results, the system can reconsider the remaining work and construct a new path.
 
 ---
 
-# Future Directions
+## Autonomous Execution
 
-Potential future extensions include:
+KnowledgeForge is designed around **goal-oriented autonomy**.
 
-* Multi-agent collaboration
-* Long-term memory
-* Agent evaluation
-* Autonomous knowledge acquisition
-* Scheduled autonomous tasks
-* Human approval gates
-* Advanced failure recovery
-* Agent observability
-* Cost and latency optimization
-* Multi-step research workflows
-* Self-improving knowledge pipelines
+The user provides an objective rather than specifying every individual operation.
 
----
-
-## Summary
-
-KnowledgeForge demonstrates the progression from a traditional AI application toward an autonomous system:
+For example:
 
 ```text
-Knowledge
-   ↓
-Retrieval
-   ↓
-Agentic Reasoning
-   ↓
-Tool Use
-   ↓
-Planning
-   ↓
-Execution
-   ↓
+User:
+"Research this topic and determine the most useful information."
+
+Instead of:
+
+1. Search source A
+2. Read result
+3. Search source B
+4. Compare results
+5. Generate summary
+```
+
+the system determines the necessary sequence itself.
+
+The autonomy comes from the ability to:
+
+1. Understand the objective
+2. Determine what needs to be accomplished
+3. Select appropriate actions
+4. Execute those actions
+5. Observe the results
+6. Evaluate progress
+7. Adapt the plan
+8. Continue until completion
+
+---
+
+## Re-Planning and Adaptation
+
+Autonomous systems cannot assume that every action will produce the expected result. Reality, inconveniently, continues to exist.
+
+KnowledgeForge therefore evaluates the outcome of its actions.
+
+If the result is insufficient:
+
+```text
+Action
+  ↓
+Result
+  ↓
 Evaluation
-   ↓
-Re-planning
-   ↓
-Autonomous System
+  ↓
+Insufficient
+  ↓
+New Plan
+  ↓
+New Action
 ```
 
-The project is ultimately an exploration of **agentic system design**, where the important problem is no longer simply *how to generate an answer*, but **how to build a system capable of deciding and executing the steps required to achieve a goal**.
+If the result satisfies the objective:
+
+```text
+Action
+  ↓
+Result
+  ↓
+Evaluation
+  ↓
+Sufficient
+  ↓
+Complete
+```
+
+This feedback loop allows the system to adapt instead of blindly following a predetermined sequence.
+
+---
+
+## Deterministic + Agentic Architecture
+
+KnowledgeForge does not delegate everything to the LLM.
+
+The system separates responsibilities between **reasoning** and **execution**.
+
+```text
+                KnowledgeForge
+                     │
+        ┌────────────┴────────────┐
+        │                         │
+   Agentic Layer           Deterministic Layer
+        │                         │
+   Reasoning                 Tool Execution
+   Planning                  Data Operations
+   Decisions                 APIs
+   Re-planning               Validation
+   Evaluation                Storage
+```
+
+The agent decides **what should happen**.
+
+Deterministic components decide **how the operation is actually performed**.
+
+This makes the system more controllable while still allowing dynamic behavior.
+
+---
+
+## State
+
+KnowledgeForge maintains explicit execution state throughout the task.
+
+The state represents information such as:
+
+* Current objective
+* Completed actions
+* Retrieved information
+* Tool results
+* Current plan
+* Intermediate findings
+* Remaining tasks
+* Execution status
+
+This allows subsequent reasoning steps to operate using the actual state of the task rather than relying solely on conversational history.
+
+---
+
+## Failure Handling
+
+A tool failure or unexpected result does not necessarily terminate the entire task.
+
+The system can:
+
+```text
+Execute
+   ↓
+Failure / Unexpected Result
+   ↓
+Evaluate
+   ↓
+Determine Recovery Strategy
+   ↓
+Retry / Alternative Action / Re-plan
+   ↓
+Continue
+```
+
+This allows failures to become part of the agent's decision-making process rather than simply becoming application errors.
+
+---
+
+## Human Control
+
+Autonomy does not mean unrestricted execution.
+
+Certain operations can require validation or human intervention before they are performed.
+
+This creates a controlled model:
+
+```text
+Agent
+  ↓
+Determine Action
+  ↓
+Is approval required?
+  ├── No ──► Execute
+  │
+  └── Yes
+        ↓
+   Human Approval
+        ↓
+     Execute
+```
+
+The system can therefore combine autonomous reasoning with explicit control boundaries.
+
+---
+
+## End-to-End Flow
+
+The complete KnowledgeForge execution model can be represented as:
+
+```text
+                    User Objective
+                           │
+                           ▼
+                    Understand Goal
+                           │
+                           ▼
+                         Plan
+                           │
+                           ▼
+                  Select Next Action
+                           │
+                           ▼
+                    Select Tool
+                           │
+                           ▼
+                     Execute Tool
+                           │
+                           ▼
+                    Observe Result
+                           │
+                           ▼
+                      Evaluate
+                           │
+                 ┌─────────┴─────────┐
+                 │                   │
+              Complete           Incomplete
+                 │                   │
+                 ▼                   ▼
+              Respond             Re-plan
+                                     │
+                                     ▼
+                              Select Next Action
+                                     │
+                                     └───────►
+```
+
+The central mechanism is therefore:
+
+> **Reason → Act → Observe → Evaluate → Re-plan → Repeat**
+
+until the objective is satisfied.
+
+---
+
+## Key Characteristics
+
+* **Knowledge-grounded**: Uses available knowledge sources to support reasoning.
+* **Agentic**: The system dynamically determines its next actions.
+* **Tool-enabled**: Agents can interact with capabilities outside the language model.
+* **Goal-oriented**: Execution is driven by objectives rather than fixed sequences.
+* **Stateful**: Important information is maintained throughout execution.
+* **Adaptive**: The system can change its approach based on observations.
+* **Autonomous**: The system can independently execute multi-step tasks.
+* **Controlled**: Deterministic operations and approval boundaries provide control over autonomous behavior.
+
+---
+
+## Architecture Philosophy
+
+KnowledgeForge is built around a simple architectural principle:
+
+```text
+LLM
+ ↓
+Reason about the problem
+
+Agent
+ ↓
+Decide what should happen next
+
+Tools
+ ↓
+Perform concrete operations
+
+State
+ ↓
+Remember what has happened
+
+Evaluation
+ ↓
+Determine whether the objective is satisfied
+
+Re-planning
+ ↓
+Determine what should happen next
+```
+
+The goal is not simply to make an LLM generate better responses.
+
+The goal is to build a system that can **reason about a problem, interact with its environment, learn from the results of its actions, and continue working toward an objective with minimal step-by-step instruction from the user.**
+
+---
+
+## KnowledgeForge
+
+**KnowledgeForge is an autonomous knowledge system where intelligence is expressed not only through generated answers, but through the ability to decide, act, observe, and adapt.**
