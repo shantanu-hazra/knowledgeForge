@@ -15,8 +15,8 @@ At a high level, KnowledgeForge follows a continuous reasoning and execution loo
                        │
                        ▼
                 ┌─────────────┐
-                │   Understand │
-                │   Objective  │
+                │  Understand │
+                │  Objective  │
                 └──────┬──────┘
                        │
                        ▼
@@ -26,7 +26,7 @@ At a high level, KnowledgeForge follows a continuous reasoning and execution loo
                        │
                        ▼
               ┌──────────────────┐
-              │ Select Next Action│
+              │Select Next Action│
               └─────────┬────────┘
                         │
                         ▼
