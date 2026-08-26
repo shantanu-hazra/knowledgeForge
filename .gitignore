@@ -1,0 +1,5 @@
+.env
+*.db
+venv
+.cache.sqlite
+logs

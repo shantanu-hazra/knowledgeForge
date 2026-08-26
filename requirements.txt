@@ -1,0 +1,17 @@
+fastapi
+openai
+python-decouple
+pydantic
+uvicorn
+openmeteo-requests
+requests-cache 
+retry-requests 
+numpy 
+pandas
+ddgs
+pypdf
+sentence-transformers
+python-docx
+chromadb
+python-multipart
+qdrant_client

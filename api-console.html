@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KnowledgeForge — API Console</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --panel: #161922;
+    --panel-border: #262b38;
+    --text: #e6e8ee;
+    --muted: #8b93a7;
+    --accent: #5b8def;
+    --accent-dim: #2c3f66;
+    --ok: #4caf7d;
+    --err: #e0645a;
+    --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    padding: 32px 20px 80px;
+  }
+  header {
+    max-width: 920px;
+    margin: 0 auto 28px;
+  }
+  header h1 {
+    font-size: 22px;
+    margin: 0 0 4px;
+    letter-spacing: -0.01em;
+  }
+  header p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 14px;
+  }
+  .base-url-row {
+    max-width: 920px;
+    margin: 0 auto 24px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .base-url-row label {
+    font-size: 12px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .base-url-row input {
+    flex: 1;
+  }
+  main {
+    max-width: 920px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 10px;
+    padding: 18px 20px 20px;
+  }
+  .card-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .card-head h2 {
+    font-size: 15px;
+    margin: 0;
+  }
+  .method-tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--accent);
+    background: var(--accent-dim);
+    padding: 2px 7px;
+    border-radius: 4px;
+    letter-spacing: 0.03em;
+  }
+  .path-tag {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .field {
+    margin-bottom: 10px;
+  }
+  .field label {
+    display: block;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  input[type="text"], input[type="number"], textarea {
+    width: 100%;
+    background: #0d0f14;
+    border: 1px solid var(--panel-border);
+    color: var(--text);
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-family: var(--sans);
+    font-size: 13.5px;
+  }
+  textarea {
+    resize: vertical;
+    min-height: 44px;
+    font-family: var(--mono);
+  }
+  input:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+  .row {
+    display: flex;
+    gap: 10px;
+  }
+  .row .field { flex: 1; }
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 12px;
+  }
+  button {
+    background: var(--accent);
+    color: #0b0d12;
+    border: none;
+    font-weight: 600;
+    font-size: 13.5px;
+    padding: 9px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  button:hover { filter: brightness(1.08); }
+  button:disabled {
+    background: var(--panel-border);
+    color: var(--muted);
+    cursor: not-allowed;
+  }
+  .status {
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+  .status.ok { color: var(--ok); }
+  .status.err { color: var(--err); }
+  .status.pending { color: var(--muted); }
+  pre.output {
+    margin-top: 12px;
+    background: #0a0c10;
+    border: 1px solid var(--panel-border);
+    border-radius: 6px;
+    padding: 12px 14px;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-height: 420px;
+    overflow-y: auto;
+    color: #c9cedb;
+  }
+  pre.output:empty { display: none; }
+  pre.output .k { color: #7fb2ff; }
+  input[type="file"] {
+    color: var(--muted);
+    font-size: 13px;
+  }
+  .presets {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .preset-group-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+    margin-bottom: 2px;
+  }
+  .preset-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .chip {
+    background: #10131a;
+    border: 1px solid var(--panel-border);
+    color: var(--text);
+    font-size: 12.5px;
+    padding: 7px 12px;
+    border-radius: 999px;
+    cursor: pointer;
+    text-align: left;
+  }
+  .chip:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .chip:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .divider-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 4px 0 14px;
+  }
+  .divider-row .line {
+    flex: 1;
+    height: 1px;
+    background: var(--panel-border);
+  }
+  .divider-row span {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>KnowledgeForge — API Console</h1>
+  <p>Plain test harness for /chat, /documents/upload, and /documents/retrieve</p>
+</header>
+
+<div class="base-url-row">
+  <label for="baseUrl">Base URL</label>
+  <input type="text" id="baseUrl" value="http://localhost:8000">
+</div>
+
+<main>
+
+  <!-- CHAT -->
+  <section class="card">
+    <div class="card-head">
+      <span class="method-tag">POST</span>
+      <span class="path-tag">/chat</span>
+      <h2>Chat</h2>
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label for="chatUserId">user_id</label>
+        <input type="text" id="chatUserId" value="user_1">
+      </div>
+      <div class="field">
+        <label for="chatConvId">conversation_id</label>
+        <input type="number" id="chatConvId" value="1">
+      </div>
+    </div>
+
+    <div class="presets" id="chatPresets"></div>
+
+    <div class="divider-row"><div class="line"></div><span>or type your own</span><div class="line"></div></div>
+
+    <div class="field">
+      <label for="chatMessage">message</label>
+      <textarea id="chatMessage" placeholder="Type a custom message…"></textarea>
+    </div>
+
+    <div class="actions">
+      <button onclick="callChat(chatMessageValue(), event.target)">Send</button>
+      <span class="status" id="chatStatus"></span>
+    </div>
+    <pre class="output" id="chatOutput"></pre>
+  </section>
+
+  <!-- UPLOAD -->
+  <section class="card">
+    <div class="card-head">
+      <span class="method-tag">POST</span>
+      <span class="path-tag">/documents/upload</span>
+      <h2>Upload document</h2>
+    </div>
+
+    <div class="field">
+      <label for="uploadFile">file</label>
+      <input type="file" id="uploadFile">
+    </div>
+
+    <div class="actions">
+      <button onclick="callUpload()">Upload</button>
+      <span class="status" id="uploadStatus"></span>
+    </div>
+    <pre class="output" id="uploadOutput"></pre>
+  </section>
+
+  <!-- RETRIEVE -->
+  <section class="card">
+    <div class="card-head">
+      <span class="method-tag">POST</span>
+      <span class="path-tag">/documents/retrieve</span>
+      <h2>Retrieve</h2>
+    </div>
+
+    <div class="presets" id="retrievePresets"></div>
+
+    <div class="divider-row"><div class="line"></div><span>or type your own</span><div class="line"></div></div>
+
+    <div class="field">
+      <label for="retrieveQuery">query</label>
+      <textarea id="retrieveQuery" placeholder="Type a custom query…"></textarea>
+    </div>
+
+    <div class="actions">
+      <button onclick="callRetrieve(retrieveQueryValue(), event.target)">Search</button>
+      <span class="status" id="retrieveStatus"></span>
+    </div>
+    <pre class="output" id="retrieveOutput"></pre>
+  </section>
+
+</main>
+
+<script>
+  function baseUrl() {
+    return document.getElementById('baseUrl').value.replace(/\/+$/, '');
+  }
+
+  function setStatus(id, text, kind) {
+    const el = document.getElementById(id);
+    el.textContent = text;
+    el.className = 'status ' + (kind || '');
+  }
+
+  function printOutput(id, data) {
+    const el = document.getElementById(id);
+    el.textContent = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
+  }
+
+  async function postJSON(path, body, { statusId, outputId, button }) {
+    setStatus(statusId, 'Sending…', 'pending');
+    document.getElementById(outputId).textContent = '';
+    if (button) button.disabled = true;
+
+    const started = performance.now();
+    try {
+      const res = await fetch(baseUrl() + path, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const ms = Math.round(performance.now() - started);
+      const text = await res.text();
+      let parsed;
+      try { parsed = JSON.parse(text); } catch { parsed = text; }
+
+      if (res.ok) {
+        setStatus(statusId, `${res.status} OK · ${ms}ms`, 'ok');
+      } else {
+        setStatus(statusId, `${res.status} ${res.statusText} · ${ms}ms`, 'err');
+      }
+      printOutput(outputId, parsed);
+    } catch (e) {
+      setStatus(statusId, 'Request failed — is the server running?', 'err');
+      printOutput(outputId, String(e));
+    } finally {
+      if (button) button.disabled = false;
+    }
+  }
+
+  async function postForm(path, formData, { statusId, outputId, button }) {
+    setStatus(statusId, 'Uploading…', 'pending');
+    document.getElementById(outputId).textContent = '';
+    if (button) button.disabled = true;
+
+    const started = performance.now();
+    try {
+      const res = await fetch(baseUrl() + path, { method: 'POST', body: formData });
+      const ms = Math.round(performance.now() - started);
+      const text = await res.text();
+      let parsed;
+      try { parsed = JSON.parse(text); } catch { parsed = text; }
+
+      if (res.ok) {
+        setStatus(statusId, `${res.status} OK · ${ms}ms`, 'ok');
+      } else {
+        setStatus(statusId, `${res.status} ${res.statusText} · ${ms}ms`, 'err');
+      }
+      printOutput(outputId, parsed);
+    } catch (e) {
+      setStatus(statusId, 'Request failed — is the server running?', 'err');
+      printOutput(outputId, String(e));
+    } finally {
+      if (button) button.disabled = false;
+    }
+  }
+
+  function chatMessageValue() {
+    return document.getElementById('chatMessage').value;
+  }
+  function retrieveQueryValue() {
+    return document.getElementById('retrieveQuery').value;
+  }
+
+  function callChat(message, button) {
+    const body = {
+      message: message,
+      user_id: document.getElementById('chatUserId').value,
+      conversation_id: Number(document.getElementById('chatConvId').value),
+    };
+    postJSON('/chat', body, {
+      statusId: 'chatStatus',
+      outputId: 'chatOutput',
+      button: button,
+    });
+  }
+
+  function callRetrieve(query, button) {
+    const body = { query: query };
+    postJSON('/documents/retrieve', body, {
+      statusId: 'retrieveStatus',
+      outputId: 'retrieveOutput',
+      button: button,
+    });
+  }
+
+  // Preset test queries — clicking a chip sends immediately, no typing needed.
+  // Grouped roughly by which agent path each is meant to exercise.
+  const CHAT_PRESETS = [
+    {
+      group: 'Retrieval (private docs)',
+      items: [
+        'What is my working location?',
+        'What benefits am I covered under?',
+      ],
+    },
+    {
+      group: 'Research agent (external, no docs needed)',
+      items: [
+        "What's the latest release of the FastAPI framework and what changed in it?",
+        'Who won the most recent Nobel Prize in Physics?',
+      ],
+    },
+    {
+      group: 'Analysis agent (synthesis over evidence)',
+      items: [
+        'Compare the pros and cons of Qdrant vs ChromaDB for our use case.',
+        'What patterns show up across the documents I uploaded?',
+      ],
+    },
+    {
+      group: 'Full pipeline (retrieval → analysis → writer → reviewer)',
+      items: [
+        'Summarize the key risks mentioned in the uploaded contract and tell me if any are unusual.',
+        'Give me a fully-cited answer about my leave policy and double check it before showing me.',
+      ],
+    },
+    {
+      group: 'Writer only (no retrieval needed)',
+      items: [
+        'Summarize what we\u2019ve discussed in this conversation so far.',
+        'Rewrite my last message as a formal email.',
+      ],
+    },
+    {
+      group: 'No agent needed',
+      items: [
+        'What\u2019s 17 * 23?',
+        'Thanks, that\u2019s all for now.',
+      ],
+    },
+    {
+      group: 'Edge cases (planner robustness)',
+      items: [
+        'Look up both the pricing page and the changelog and tell me what\u2019s different.',
+        'Just write me something based on what we found.',
+      ],
+    },
+  ];
+
+  const RETRIEVE_PRESETS = [
+    {
+      group: 'Sample queries',
+      items: [
+        'what is my working location?',
+        'what is the transport facility policy?',
+        'what medical insurance benefits am I covered under?',
+      ],
+    },
+  ];
+
+  function renderPresets(containerId, groups, onPick) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = '';
+    groups.forEach(({ group, items }) => {
+      const wrap = document.createElement('div');
+
+      const label = document.createElement('div');
+      label.className = 'preset-group-label';
+      label.textContent = group;
+      wrap.appendChild(label);
+
+      const chipRow = document.createElement('div');
+      chipRow.className = 'preset-chips';
+      items.forEach((text) => {
+        const chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'chip';
+        chip.textContent = text;
+        chip.onclick = () => onPick(text, chip);
+        chipRow.appendChild(chip);
+      });
+      wrap.appendChild(chipRow);
+
+      container.appendChild(wrap);
+    });
+  }
+
+  renderPresets('chatPresets', CHAT_PRESETS, (text, chip) => callChat(text, chip));
+  renderPresets('retrievePresets', RETRIEVE_PRESETS, (text, chip) => callRetrieve(text, chip));
+
+  function callUpload() {
+    const fileInput = document.getElementById('uploadFile');
+    if (!fileInput.files.length) {
+      setStatus('uploadStatus', 'Choose a file first', 'err');
+      return;
+    }
+    const formData = new FormData();
+    formData.append('file', fileInput.files[0]);
+    postForm('/documents/upload', formData, {
+      statusId: 'uploadStatus',
+      outputId: 'uploadOutput',
+      button: event.target,
+    });
+  }
+</script>
+
+</body>
+</html>
